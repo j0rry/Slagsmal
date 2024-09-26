@@ -7,4 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Include="*.txt" CopyToOutputDirectory="Always"/>
+    <Content Include="*.json" CopyToOutputDirectory="Always"/>
+  </ItemGroup>
+
 </Project>
