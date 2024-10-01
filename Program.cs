@@ -14,7 +14,7 @@ class Program
     }
 }
 
-class GameManager
+class GameManager // Klassen som hanterar spelet
 {
     private string playerName = "Spelare";
     private int playerHp = 100;
@@ -30,9 +30,10 @@ class GameManager
 
     public void StartGame()
     {
-        enemyName = LoadRandomEnemy();
+        enemyName = LoadRandomEnemy(); // Laddar in en random enemy
 
-        if(enemyName == "Ronaldo"){
+        if (enemyName == "Ronaldo")
+        {
             enemyHp = 1000;
         }
         System.Console.WriteLine($"kills: {killCount} \n");
@@ -42,33 +43,37 @@ class GameManager
         Console.Clear();
 
         AskName();
-        while(true){
+        while (true)
+        {
             Console.Clear();
             RunGameLoop();
             Console.WriteLine("Vill du spela igen? (J/N)");
             ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
-            if(keyInfo.Key == ConsoleKey.J || keyInfo.Key == ConsoleKey.Spacebar){
+            if (keyInfo.Key == ConsoleKey.J || keyInfo.Key == ConsoleKey.Spacebar) // Input för att spela igen
+            {
                 playerHp = playerMaxHp;
                 enemyHp = 100;
             }
-            else{
+            else
+            {
                 break;
             }
-        } 
+        }
     }
 
-    private string LoadRandomEnemy(){
+    private string LoadRandomEnemy()
+    {
         string[] enemyNames;
         try
         {
-            enemyNames = File.ReadAllLines(@"./enemy.txt");
-            int randomIndex = new Random().Next(0, enemyNames.Length);
-            return enemyNames[randomIndex];
+            enemyNames = File.ReadAllLines(@"./enemy.txt"); // Läser in filen
+            int randomIndex = new Random().Next(0, enemyNames.Length); // Tar ett random index
+            return enemyNames[randomIndex]; // Returnerar det random namnet
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message + "\n");
-            return "Garlock";
+            return "Garlock"; // Om det inte funkar så returnerar den Garlock
         }
     }
 
@@ -78,25 +83,30 @@ class GameManager
         SaveKillCount();
     }
 
-    private static void SaveKillCount() {
-        try{
-            var data = new Dictionary<string, int> { { "Kills", killCount} };
-            string json = System.Text.Json.JsonSerializer.Serialize(data);
-            File.WriteAllText("killcount.json", json);
-        }catch(Exception ex){
+    private static void SaveKillCount() // Sparar kill count
+    {
+        try
+        {
+            var data = new Dictionary<string, int> { { "Kills", killCount } }; // Gör en dictionary med kill count
+            string json = System.Text.Json.JsonSerializer.Serialize(data); // Gör det till en json string
+            File.WriteAllText("killcount.json", json); // Skriver det till filen
+        }
+        catch (Exception ex)
+        {
             Console.WriteLine("kunde ispara killcount: " + ex.Message);
         }
     }
 
-    public static void LoadKillCount(){
+    public static void LoadKillCount() // Laddar kill count
+    {
         try
         {
-            if (File.Exists(killCountFilePath))
+            if (File.Exists(killCountFilePath)) // Kollar om filen finns
             {
-                string json = File.ReadAllText(killCountFilePath);
-                
-                var data = JsonSerializer.Deserialize<Dictionary<string, int>>(json);
-                killCount = data?["Kills"] ?? 0;
+                string json = File.ReadAllText(killCountFilePath); // Läser filen
+
+                var data = JsonSerializer.Deserialize<Dictionary<string, int>>(json); // Gör det till en json dictionary
+                killCount = data?["Kills"] ?? 0; // Kollar om det finns något i Kills annars sätter den det till 0
             }
             else
             {
@@ -111,24 +121,24 @@ class GameManager
 
     }
 
-    private void AskName()
+    private void AskName() // Frågar om spelarens namn
     {
         do
         {
             Console.Write("Skriv Ditt namn: ");
             playerName = Console.ReadLine() ?? string.Empty;
         } while (string.IsNullOrEmpty(playerName));
-        
+
     }
 
-    private void RunGameLoop()
+    private void RunGameLoop() // Spel loop
     {
         bool playerTurn = true;
         Random random = new Random();
 
-        
 
-        while (playerHp > 0 && enemyHp > 0)
+
+        while (playerHp >= 0 && enemyHp >= 0) // Kollar om Spelare och enemy inte är mindre eller lika med noll
         {
             Console.WriteLine($"Du har {playerHp} hp kvar \n{enemyName} har {enemyHp} hp kvar");
             System.Console.WriteLine($"\n\nkills: {killCount}");
@@ -139,52 +149,65 @@ class GameManager
             switch (keyInfo.Key)
             {
                 case ConsoleKey.Spacebar:
-                    if(playerTurn){
+                    if (playerTurn)
+                    {
                         playerDamage = random.Next(1, 10);
                         enemyHp -= playerDamage;
-                        if(playerDamage > 5){
+                        if (playerDamage > 5)
+                        {
                             Console.WriteLine($"{playerName} smiskade {enemyName} för {playerDamage} hp och gjorde en critical hit!!");
-                        }else{
+                        }
+                        else
+                        {
                             Console.WriteLine($"{playerName} smiskade {enemyName} för {playerDamage} hp");
                         }
-                        playerTurn = false;  
+                        playerTurn = false;
                     }
-                    else{
+                    else
+                    {
                         enemyDamage = random.Next(1, 10);
                         playerHp -= enemyDamage;
-                        if(enemyDamage > 5){
+                        if (enemyDamage > 5)
+                        {
                             Console.WriteLine($"{enemyName} smiskade dig för {enemyDamage} hp och gjorde en critical hit!!");
-                        }else{
+                        }
+                        else
+                        {
                             Console.WriteLine($"{enemyName} smiskade dig för {enemyDamage} hp");
                         }
                         playerTurn = true;
-                        
+
                     }
                     break;
                 case ConsoleKey.Escape:
                     Console.WriteLine("Du har avslutat spelet");
                     return;
             }
-            
+
         }
         winCheck();
     }
 
-    void winCheck(){
+    void winCheck() // kollar vinst och om det är lika
+    {
         Console.Clear();
 
-        if(playerHp < 0) playerHp = 0;
-        if(enemyHp < 0) playerHp = 0;
+        if (playerHp < 0) playerHp = 0;
+        if (enemyHp < 0) playerHp = 0;
 
-        if(playerHp == enemyHp) {
-            Console.WriteLine("Det blev oavgjort!"); 
+        if (playerHp == enemyHp)
+        {
+            Console.WriteLine("Det blev oavgjort!");
             AddKillCount();
             return;
         }
 
-        if(playerHp <= 0) {
+        if (playerHp <= 0)
+        {
             Console.WriteLine("Du förlorade!");
-        } else {
+        }
+        else
+        {
             Console.WriteLine("Du vann!");
             AddKillCount();
         }
